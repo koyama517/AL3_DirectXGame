@@ -4,13 +4,20 @@
 
 GameScene::GameScene() {}
 
-GameScene::~GameScene() {}
+GameScene::~GameScene() {
+
+	delete sprite_;
+
+}
 
 void GameScene::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
+
+	texturHandle_ = TextureManager::Load("sample.png");
+	sprite_ = Sprite::Create(texturHandle_, {100, 50});
 }
 
 void GameScene::Update() {}
@@ -27,6 +34,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
+	sprite_->Draw();
+
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
