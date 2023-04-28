@@ -1,12 +1,17 @@
 ﻿#pragma once
 #include "Model.h"
 #include "WorldTransform.h"
-
+#include"Input.h"
+#include"Calculation.h"
+#include"ImGuiManager.h"
+#include "WinApp.h"
 
 /// <summary>
 /// 自キャラ
 /// </summary>
 class Player {
+
+	Input* input_ = nullptr;
 
 public:
 	/// <summary>
