@@ -54,7 +54,7 @@ void GameScene::Update() {
 	debugCamera_->Update();
 
 	#ifdef _DEBUG
-	if (input_->TriggerKey(DIK_SPACE)) {
+	if (input_->TriggerKey(DIK_E)) {
 		if (isDebugCameraActive_) {
 			isDebugCameraActive_ = false;
 		} else {

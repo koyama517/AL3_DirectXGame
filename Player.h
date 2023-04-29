@@ -5,6 +5,7 @@
 #include"Calculation.h"
 #include"ImGuiManager.h"
 #include "WinApp.h"
+#include"PlayerBullet.h"
 
 /// <summary>
 /// 自キャラ
@@ -27,6 +28,11 @@ public:
 	void Update();
 
 	/// <summary>
+	/// 更新
+	/// </summary>
+	void Rotate();
+
+	/// <summary>
 	/// 描画
 	/// </summary>
 	/// <param name="viewprojection">ビュープロジェクション(参照渡し)</param>
@@ -39,4 +45,13 @@ private:
 	Model* model_ = nullptr;
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
+
+	PlayerBullet* bullet_ = nullptr;
+
+	/// <summary>
+	/// 攻撃
+	/// </summary>
+	void Attack();
+
+
 };
