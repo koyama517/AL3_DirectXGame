@@ -10,6 +10,7 @@
 #include "WorldTransform.h"
 #include "Player.h"
 #include"DebugCamera.h"
+#include"Enemy.h"
 
 /// <summary>
 /// ゲームシーン
@@ -18,6 +19,7 @@ class GameScene {
 
 	//3Dモデル
 	Model* playerModel_ = nullptr;
+	Model* enemyModel_ = nullptr;
 
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_;
@@ -30,6 +32,8 @@ class GameScene {
 	//デバッグカメラ
 	bool isDebugCameraActive_ = false;
 	DebugCamera* debugCamera_ = nullptr;
+
+	Enemy* enemy_ = nullptr;
 	
 public: // メンバ関数
 	/// <summary>
@@ -64,6 +68,7 @@ private: // メンバ変数
 
 	//テクスチャハンドル
 	uint32_t playerTextureHandle_ = 0;
+	uint32_t enemyTextureHandle_ = 0;
 
 	/// <summary>
 	/// ゲームシーン用

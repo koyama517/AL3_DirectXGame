@@ -14,6 +14,8 @@ GameScene::~GameScene() {
 	delete player_;
 
 	delete debugCamera_;
+
+	delete enemy_;
 }
 
 void GameScene::Initialize() {
@@ -45,13 +47,25 @@ void GameScene::Initialize() {
 
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewPlojection_);
 
+	// テクスチャを読み込む
+	enemyTextureHandle_ = TextureManager::Load("black1x1.png");
 
+	// 3Dモデルデータの生成
+	enemyModel_ = Model::Create();
+
+	const Vector3 enemyvelocity = {0, 0, -0.5f};
+
+	//敵の生成
+	enemy_ = new Enemy();
+	//敵の初期化
+	enemy_->Initiarize(enemyModel_, enemyTextureHandle_,enemyvelocity);
 }
 
 void GameScene::Update() {
 
 	player_->Update();
 	debugCamera_->Update();
+	enemy_->Update();
 
 	#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_E)) {
@@ -103,7 +117,7 @@ void GameScene::Draw() {
 	/// </summary>
 
 	player_->Draw(viewPlojection_);
-
+	enemy_->Draw(viewPlojection_);
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
