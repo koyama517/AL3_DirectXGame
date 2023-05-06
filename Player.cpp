@@ -14,6 +14,14 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 }
 
+Player::~Player() {
+
+
+	for (PlayerBullet* bullet : bullets_) {
+		delete bullet;
+	}
+}
+
 void Player::Update() {
 
 	//行列を指定バッファに転送
@@ -68,8 +76,10 @@ void Player::Update() {
 	// 攻撃処理
 	Attack();
 
-	if (bullet_) {
-		bullet_->Update();
+	for (PlayerBullet* bullet : bullets_) {
+
+		bullet->Update();
+
 	}
 
 }
@@ -94,7 +104,7 @@ void Player::Attack() {
 		PlayerBullet* newBullet = new PlayerBullet();
 		newBullet->Initialize(model_, worldTransform_.translation_);
 
-		bullet_ = newBullet;
+		bullets_.push_back(newBullet);
 	}
 
 }
@@ -104,8 +114,8 @@ void Player::Draw(ViewProjection viewPrpjection) {
 	//3Dモデルの描画
 	model_->Draw(worldTransform_, viewPrpjection, textureHandle_);
 
-	if (bullet_) {
-		bullet_->Draw(viewPrpjection);
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Draw(viewPrpjection);
 	}
 
 }

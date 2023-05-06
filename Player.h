@@ -6,6 +6,8 @@
 #include"ImGuiManager.h"
 #include "WinApp.h"
 #include"PlayerBullet.h"
+#include<list>
+
 
 /// <summary>
 /// 自キャラ
@@ -15,6 +17,12 @@ class Player {
 	Input* input_ = nullptr;
 
 public:
+
+	// <summary>
+	/// デストラクタ
+	/// </summary>
+	~Player();
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -28,7 +36,7 @@ public:
 	void Update();
 
 	/// <summary>
-	/// 更新
+	/// 回転
 	/// </summary>
 	void Rotate();
 
@@ -46,7 +54,9 @@ private:
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 
-	PlayerBullet* bullet_ = nullptr;
+	//PlayerBullet* bullet_ = nullptr;
+
+	std::list<PlayerBullet*> bullets_;
 
 	/// <summary>
 	/// 攻撃
