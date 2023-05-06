@@ -15,4 +15,7 @@ public:
 	static Matrix4x4 MakeRotateYMatrix(float radian);
 	static Matrix4x4 MakeRotateZMatrix(float radian);
 	static Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2);
+
+	static Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
+
 };

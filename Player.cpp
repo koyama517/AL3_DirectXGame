@@ -24,6 +24,15 @@ Player::~Player() {
 
 void Player::Update() {
 
+	//デスフラグが立った弾を削除
+	bullets_.remove_if([](PlayerBullet* bullet) {
+		if (bullet->isDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
+
 	//行列を指定バッファに転送
 	worldTransform_.TransferMatrix();
 	//キャラクターの移動ベクトル
@@ -101,8 +110,16 @@ void Player::Attack() {
 
 	if (input_->TriggerKey(DIK_SPACE)) {
 
+		//弾の速度
+
+		const float kBulletSpeed = 1.0f;
+
+		Vector3 velocity(0, 0, kBulletSpeed);
+
+		velocity = Calculation::TransformNormal(velocity, worldTransform_.matWorld_);
+
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_);
+		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
 
 		bullets_.push_back(newBullet);
 	}
