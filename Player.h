@@ -46,6 +46,8 @@ public:
 	/// <param name="viewprojection">ビュープロジェクション(参照渡し)</param>
 	void Draw(ViewProjection viewPrpjection);
 
+	Vector3 GetWorldPosition();
+
 private:
 	//ワールドデータ変換
 	WorldTransform worldTransform_;

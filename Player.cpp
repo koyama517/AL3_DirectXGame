@@ -1,5 +1,6 @@
 ﻿#include "Player.h"
 #include <cassert>
+
 void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 	//NULLポインタチェック
@@ -135,5 +136,17 @@ void Player::Draw(ViewProjection viewPrpjection) {
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw(viewPrpjection);
 	}
+
+}
+
+Vector3 Player::GetWorldPosition() { 
+
+	Vector3 worldPos;
+
+	worldPos.x = worldTransform_.translation_.x;
+	worldPos.y = worldTransform_.translation_.y;
+	worldPos.z = worldTransform_.translation_.z;
+
+	return worldPos;
 
 }

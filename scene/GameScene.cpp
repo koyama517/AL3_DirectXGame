@@ -59,6 +59,8 @@ void GameScene::Initialize() {
 	enemy_ = new Enemy();
 	//敵の初期化
 	enemy_->Initiarize(enemyModel_, enemyTextureHandle_,enemyvelocity);
+
+	enemy_->SetPlayer(player_);
 }
 
 void GameScene::Update() {

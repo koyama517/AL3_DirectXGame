@@ -9,6 +9,8 @@ class Calculation {
 public:
 
 	static Vector3 VectorAdd(const Vector3 v1, const Vector3 v2);
+	static Vector3 VectorSubtraction(const Vector3 v1, const Vector3 v2);
+	static Vector3 Multiply(const float v1, const Vector3& v2);
 
 	static Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3 translate);
 	static Matrix4x4 MakeRotateXMatrix(float radian);
@@ -17,5 +19,9 @@ public:
 	static Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2);
 
 	static Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
+	
+	static float Dot(const Vector3& v1, const Vector3& v2);
+	static float Length(const Vector3& v);
+	static Vector3 Normalize(const Vector3& v);
 
 };

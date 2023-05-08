@@ -2,46 +2,48 @@
 #include "Model.h"
 #include "WorldTransform.h"
 #include <assert.h>
+
 /// <summary>
-/// ©ƒLƒƒƒ‰‚Ì’e
+/// è‡ªã‚­ãƒ£ãƒ©ã®å¼¾
 /// </summary>
 class EnemyBullet {
 public:
 	///< summary>
-	/// ‰Šú‰»
+	/// åˆæœŸåŒ–
 	///</summary>
-	///< param name="model">ƒ‚ƒfƒ‹</param>
-	/// <param name="position">‰Šú‰»</param>
+	///< param name="model">ãƒ¢ãƒ‡ãƒ«</param>
+	/// <param name="position">åˆæœŸåŒ–</param>
 	void Initialize(Model* model, const Vector3& position, const Vector3 velocity);
 
 	///< summary>
-	/// XV
+	/// æ›´æ–°
 	///</summary>
 	void Update();
 
 	///< summary>
-	/// ‰Šú‰»
+	/// åˆæœŸåŒ–
 	///</summary>
-	/// <param name="viewProjection">ƒrƒ…[ƒvƒƒWƒFƒNƒVƒ‡ƒ“</param>
+	/// <param name="viewProjection">ãƒ“ãƒ¥ãƒ¼ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³</param>
 	void Draw(const ViewProjection& viewProjection);
 
 	bool isDead() const { return isDead_; }
 
 private:
-	// ƒ[ƒ‹ƒhƒf[ƒ^•ÏŠ·
+
+	// ãƒ¯ãƒ¼ãƒ«ãƒ‰ãƒ‡ãƒ¼ã‚¿å¤‰æ›
 	WorldTransform worldTransform_;
-	// ƒ‚ƒfƒ‹
+	// ãƒ¢ãƒ‡ãƒ«
 	Model* model_ = nullptr;
-	// ƒeƒNƒXƒ`ƒƒƒnƒ“ƒhƒ‹
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒãƒ³ãƒ‰ãƒ«
 	uint32_t textureHandle_ = 0u;
-	// ‘¬“x
+	// é€Ÿåº¦
 	Vector3 velocity_;
 
-	// õ–½
+	// å¯¿å‘½
 	static const int32_t kLifeTime = 60 * 5;
 
-	// ƒfƒXƒ^ƒCƒ}[
+	// ãƒ‡ã‚¹ã‚¿ã‚¤ãƒãƒ¼
 	int32_t deathTimer_ = kLifeTime;
-	// ƒfƒXƒtƒ‰ƒO
+	// ãƒ‡ã‚¹ãƒ•ãƒ©ã‚°
 	bool isDead_ = false;
 };

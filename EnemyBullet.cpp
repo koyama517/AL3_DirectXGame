@@ -1,11 +1,11 @@
 #include "EnemyBullet.h"
 
 void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector3 velocity) {
-	// NULLポインタチェック
+	// NULL繝昴う繝ｳ繧ｿ繝√ぉ繝�繧ｯ
 	assert(model);
 
 	model_ = model;
-	// テクスチャ読み込み
+	// 繝�繧ｯ繧ｹ繝√Ε隱ｭ縺ｿ霎ｼ縺ｿ
 	textureHandle_ = TextureManager::Load("white1x1.png");
 
 	worldTransform_.Initialize();
@@ -28,3 +28,4 @@ void EnemyBullet::Draw(const ViewProjection& viewProjection) {
 
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 }
+

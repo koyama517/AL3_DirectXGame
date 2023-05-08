@@ -11,6 +11,27 @@ Vector3 Calculation::VectorAdd(Vector3 v1, Vector3 v2) {
 	return result;
 }
 
+Vector3 Calculation::VectorSubtraction(const Vector3 v1, const Vector3 v2) {
+	Vector3 result;
+
+	result.x = v1.x - v2.x;
+	result.y = v1.y - v2.y;
+	result.z = v1.z - v2.z;
+
+	return result;
+
+}
+
+Vector3 Calculation::Multiply(const float v1, const Vector3& v2) {
+	Vector3 result;
+
+	result.x = v1 * v2.x;
+	result.y = v1 * v2.y;
+	result.z = v1 * v2.z;
+
+	return result;
+}
+
 Matrix4x4 Calculation::MakeRotateXMatrix(float radian) {
 	Matrix4x4 result;
 
@@ -135,6 +156,29 @@ Vector3 Calculation::TransformNormal(const Vector3& v, const Matrix4x4& m){
 	    v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1],
 	    v.x * m.m[0][2] + v.y * m.m[1][2] + v.z * m.m[2][2],
 	};
+
+	return result;
+};
+
+float Calculation::Dot(const Vector3& v1, const Vector3& v2) {
+	float result;
+
+	return result = v1.x * v2.x + v1.y * v1.y + v1.z * v2.z;
+};
+
+float Calculation::Length(const Vector3& v) { 
+	return sqrt(Dot(v, v)); 
+};
+
+Vector3 Calculation::Normalize(const Vector3& v) {
+
+	float length = Length(v);
+	Vector3 result;
+	if (!length == 0) {
+		result.x = v.x / length;
+		result.y = v.y / length;
+		result.z = v.z / length;
+	}
 
 	return result;
 };
