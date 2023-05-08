@@ -67,6 +67,7 @@ void Player::Update() {
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY);
 
 	worldTransform_.translation_ = Calculation::VectorAdd(worldTransform_.translation_,move);
+	
 	pos[0] = worldTransform_.translation_.x;
 	pos[1] = worldTransform_.translation_.y;
 	pos[2] = worldTransform_.translation_.z;
