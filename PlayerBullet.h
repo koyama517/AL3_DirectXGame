@@ -27,6 +27,12 @@ public:
 
 	bool isDead() const { return isDead_; }
 
+	void OnCollision();
+
+	const float radius_ = 5.0f;
+
+	Vector3 GetWorldPosition();
+
 private:
 	// ワールドデータ変換
 	WorldTransform worldTransform_;

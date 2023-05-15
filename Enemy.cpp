@@ -25,6 +25,15 @@ Enemy::~Enemy() {
 }
 
 void Enemy::Update() {
+
+	bullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->isDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
+
 	switch (phase_) {
 	case Enemy::Phase::Approach:
 	default:

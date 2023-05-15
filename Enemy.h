@@ -41,6 +41,12 @@ public:
 
 	Vector3 GetWorldPosition();
 
+	void OnCollision() {}
+
+	const std::list<EnemyBullet*>& GetBullet() { return bullets_; }
+
+	const float radius_ = 10.0f;
+
 private:
 	// ワールドデータ変換
 	WorldTransform worldTransform_;

@@ -1,16 +1,16 @@
 #include "GameScene.h"
+#include "AxisIndicator.h"
 #include "TextureManager.h"
-#include"AxisIndicator.h"
 #include <cassert>
 
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {
 
-	//3Dモデルデータの解放
+	// 3Dモデルデータの解放
 	delete playerModel_;
 
-	//自キャラの解放
+	// 自キャラの解放
 	delete player_;
 
 	delete debugCamera_;
@@ -24,24 +24,24 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
-	//テクスチャを読み込む
+	// テクスチャを読み込む
 	playerTextureHandle_ = TextureManager::Load("sample.png");
 
-	//3Dモデルデータの生成
+	// 3Dモデルデータの生成
 	playerModel_ = Model::Create();
 
-	//ワールドトランスフォームの初期化
+	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
-	//ビュープロジェクションの初期化
+	// ビュープロジェクションの初期化
 	viewPlojection_.Initialize();
 
-	//自キャラの生成
+	// 自キャラの生成
 	player_ = new Player();
-	//自キャラの初期化
-	player_->Initialize(playerModel_,playerTextureHandle_);
+	// 自キャラの初期化
+	player_->Initialize(playerModel_, playerTextureHandle_);
 
-	//デバッグカメラの生成
-	debugCamera_ = new DebugCamera(WinApp::kWindowWidth,WinApp::kWindowHeight);
+	// デバッグカメラの生成
+	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
 	AxisIndicator::GetInstance()->SetVisible(true);
 
@@ -55,10 +55,10 @@ void GameScene::Initialize() {
 
 	const Vector3 enemyvelocity = {0, 0, -0.5f};
 
-	//敵の生成
+	// 敵の生成
 	enemy_ = new Enemy();
-	//敵の初期化
-	enemy_->Initiarize(enemyModel_, enemyTextureHandle_,enemyvelocity);
+	// 敵の初期化
+	enemy_->Initiarize(enemyModel_, enemyTextureHandle_, enemyvelocity);
 
 	enemy_->SetPlayer(player_);
 }
@@ -69,7 +69,9 @@ void GameScene::Update() {
 	debugCamera_->Update();
 	enemy_->Update();
 
-	#ifdef _DEBUG
+	CheckAllCollision();
+
+#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_E)) {
 		if (isDebugCameraActive_) {
 			isDebugCameraActive_ = false;
@@ -134,6 +136,81 @@ void GameScene::Draw() {
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
+
+#pragma endregion
+}
+
+void GameScene::CheckAllCollision() {
+
+	Vector3 posA, posB;
+
+	const std::list<PlayerBullet*>& playerBullets = player_->GetBullet();
+	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullet();
+
+#pragma region 自キャラと敵弾の当たり判定
+
+	posA = player_->GetWorldPosition();
+
+	for (EnemyBullet* bullet:enemyBullets) {
+
+		posB = bullet->GetWorldPosition();
+
+		Vector3 length = Calculation::VectorSubtraction(posB, posA);
+
+		if (powf(length.x, 2) + powf(length.y, 2) + powf(length.z,2) <=
+		    powf((player_->radius_ + bullet->radius_), 2)) {
+
+			player_->OnCollision();
+
+			bullet->OnCollision();
+
+		}
+
+	}
+
+
+
+#pragma endregion
+#pragma region 自弾と敵キャラの当たり判定
+
+	posA = enemy_->GetWorldPosition();
+
+	for (PlayerBullet* bullet : playerBullets) {
+
+		posB = bullet->GetWorldPosition();
+
+		Vector3 length = Calculation::VectorSubtraction(posB, posA);
+
+		if (powf(length.x, 2) + powf(length.y, 2) + powf(length.z, 2) <=
+		    powf((enemy_->radius_ + bullet->radius_), 2)) {
+
+			enemy_->OnCollision();
+
+			bullet->OnCollision();
+		}
+	}
+
+#pragma endregion
+#pragma region 自弾と敵弾の当たり判定
+
+	for (EnemyBullet* eBullet : enemyBullets) {
+		posA = eBullet->GetWorldPosition();
+		for (PlayerBullet* pBullet : playerBullets) {
+
+			posB = pBullet->GetWorldPosition();
+
+			Vector3 length = Calculation::VectorSubtraction(posB, posA);
+
+			if (powf(length.x, 2) + powf(length.y, 2) + powf(length.z, 2) <=
+			    powf((eBullet->radius_ + pBullet->radius_), 2)) {
+
+				pBullet->OnCollision();
+
+				eBullet->OnCollision();
+			}
+		}
+	}
+
 
 #pragma endregion
 }
