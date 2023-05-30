@@ -11,6 +11,7 @@
 #include "Player.h"
 #include"DebugCamera.h"
 #include"Enemy.h"
+#include"Skydome.h"
 
 /// <summary>
 /// ゲームシーン
@@ -20,6 +21,7 @@ class GameScene {
 	//3Dモデル
 	Model* playerModel_ = nullptr;
 	Model* enemyModel_ = nullptr;
+	Model* modelSkydome_ = nullptr;
 
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_;
@@ -34,6 +36,8 @@ class GameScene {
 	DebugCamera* debugCamera_ = nullptr;
 
 	Enemy* enemy_ = nullptr;
+
+	Skydome* skydome_ = nullptr;
 	
 public: // メンバ関数
 	/// <summary>

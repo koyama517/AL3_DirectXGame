@@ -16,6 +16,8 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 
 	delete enemy_;
+
+	//delete skydome_;
 }
 
 void GameScene::Initialize() {
@@ -29,7 +31,9 @@ void GameScene::Initialize() {
 
 	// 3Dモデルデータの生成
 	playerModel_ = Model::Create();
+	enemyModel_ = Model::Create();
 
+	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	// ビュープロジェクションの初期化
@@ -50,9 +54,6 @@ void GameScene::Initialize() {
 	// テクスチャを読み込む
 	enemyTextureHandle_ = TextureManager::Load("black1x1.png");
 
-	// 3Dモデルデータの生成
-	enemyModel_ = Model::Create();
-
 	const Vector3 enemyvelocity = {0, 0, -0.5f};
 
 	// 敵の生成
@@ -61,6 +62,9 @@ void GameScene::Initialize() {
 	enemy_->Initiarize(enemyModel_, enemyTextureHandle_, enemyvelocity);
 
 	enemy_->SetPlayer(player_);
+
+	skydome_ = new Skydome();
+	skydome_->Initialize(modelSkydome_);
 }
 
 void GameScene::Update() {
@@ -119,7 +123,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-
+	skydome_->Draw(viewPlojection_);
 	player_->Draw(viewPlojection_);
 	enemy_->Draw(viewPlojection_);
 	// 3Dオブジェクト描画後処理
