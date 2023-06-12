@@ -10,6 +10,10 @@
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+
+	Matrix4x4 test = Calculation::MakeAffineMatrix({1, 1, 1}, {0, 0, 0}, {0, 0, 0});
+	Matrix4x4 InversTest = Calculation::Inverse(test);
+
 	WinApp* win = nullptr;
 	DirectXCommon* dxCommon = nullptr;
 	// 汎用機能

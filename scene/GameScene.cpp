@@ -17,7 +17,7 @@ GameScene::~GameScene() {
 
 	delete enemy_;
 
-	//delete skydome_;
+	delete skydome_;
 }
 
 void GameScene::Initialize() {
@@ -39,11 +39,13 @@ void GameScene::Initialize() {
 	// ビュープロジェクションの初期化
 	viewPlojection_.Initialize();
 
+	Vector3 playerPosition(0, 0, 40.0f);
+
 	// 自キャラの生成
 	player_ = new Player();
-	// 自キャラの初期化
-	player_->Initialize(playerModel_, playerTextureHandle_);
 
+	// 自キャラの初期化
+	player_->Initialize(playerModel_, playerTextureHandle_, playerPosition);
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
@@ -63,16 +65,19 @@ void GameScene::Initialize() {
 
 	enemy_->SetPlayer(player_);
 
+	// 天球
 	skydome_ = new Skydome();
 	skydome_->Initialize(modelSkydome_);
+	// カメラ生成
+	railCamera_ = new RailCamera();
+	// カメラの初期化
+	railCamera_->Initialize(worldTransform_.translation_, worldTransform_.rotation_);
+
+	player_->SetParent(&railCamera_->GetWorldTransform());
+
 }
 
 void GameScene::Update() {
-
-	player_->Update();
-	debugCamera_->Update();
-	enemy_->Update();
-
 	CheckAllCollision();
 
 #ifdef _DEBUG
@@ -83,18 +88,24 @@ void GameScene::Update() {
 			isDebugCameraActive_ = true;
 		}
 	}
-
 #endif // _DEBUG
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
-
 		viewPlojection_.matView = debugCamera_->GetViewProjection().matView;
 		viewPlojection_.matProjection = debugCamera_->GetViewProjection().matProjection;
 		viewPlojection_.TransferMatrix();
 	} else {
-		//
-		viewPlojection_.UpdateMatrix();
+		railCamera_->Update();
+		//viewPlojection_.UpdateMatrix();
+		viewPlojection_.matView = railCamera_->GetViewProjection().matView;
+		viewPlojection_.matProjection = railCamera_->GetViewProjection().matProjection;
+		viewPlojection_.TransferMatrix();
 	}
+
+	player_->Update();
+	//debugCamera_->Update();
+	enemy_->Update();
+
 }
 
 void GameScene::Draw() {
@@ -155,24 +166,20 @@ void GameScene::CheckAllCollision() {
 
 	posA = player_->GetWorldPosition();
 
-	for (EnemyBullet* bullet:enemyBullets) {
+	for (EnemyBullet* bullet : enemyBullets) {
 
 		posB = bullet->GetWorldPosition();
 
 		Vector3 length = Calculation::VectorSubtraction(posB, posA);
 
-		if (powf(length.x, 2) + powf(length.y, 2) + powf(length.z,2) <=
+		if (powf(length.x, 2) + powf(length.y, 2) + powf(length.z, 2) <=
 		    powf((player_->radius_ + bullet->radius_), 2)) {
 
 			player_->OnCollision();
 
 			bullet->OnCollision();
-
 		}
-
 	}
-
-
 
 #pragma endregion
 #pragma region 自弾と敵キャラの当たり判定
@@ -214,7 +221,6 @@ void GameScene::CheckAllCollision() {
 			}
 		}
 	}
-
 
 #pragma endregion
 }

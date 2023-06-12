@@ -24,4 +24,6 @@ public:
 	static float Length(const Vector3& v);
 	static Vector3 Normalize(const Vector3& v);
 
+	static Matrix4x4 Inverse(const Matrix4x4& m);
+
 };

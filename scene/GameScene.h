@@ -12,7 +12,7 @@
 #include"DebugCamera.h"
 #include"Enemy.h"
 #include"Skydome.h"
-
+#include"RailCamera.h"
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -34,11 +34,13 @@ class GameScene {
 	//デバッグカメラ
 	bool isDebugCameraActive_ = false;
 	DebugCamera* debugCamera_ = nullptr;
-
+	//敵
 	Enemy* enemy_ = nullptr;
-
+	//天球
 	Skydome* skydome_ = nullptr;
-	
+	//レールカメラ
+	RailCamera* railCamera_ = nullptr;
+
 public: // メンバ関数
 	/// <summary>
 	/// コンストクラタ

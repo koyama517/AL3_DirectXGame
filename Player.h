@@ -28,7 +28,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <param name="textureHandle">テクスチャハンドル</param>
-	void Initialize(Model* model, uint32_t textureHandle);
+	void Initialize(Model* model, uint32_t textureHandle, Vector3 position);
 
 	/// <summary>
 	/// 更新
@@ -47,13 +47,12 @@ public:
 	void Draw(ViewProjection viewPrpjection);
 
 	Vector3 GetWorldPosition();
-
+	Vector3 GetRotate() {return worldTransform_.rotation_; }
 	void OnCollision(){}
-
 	const std::list<PlayerBullet*>& GetBullet() { return bullets_; }
 
 	const float radius_ = 10.0f;
-
+	void SetParent(const WorldTransform* parent);
 
 private:
 	//ワールドデータ変換
