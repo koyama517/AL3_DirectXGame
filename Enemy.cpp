@@ -1,38 +1,28 @@
 #include "Enemy.h"
-#include"Player.h"
-void Enemy::Initiarize(Model* model, uint32_t textureHandle, const Vector3 velocity) {
+#include "GameScene.h"
+#include "Player.h"
+void Enemy::Initiarize(Model* model, const Vector3 pos, const Vector3 velocity) {
 
 	// NULLポインタチェック
 	assert(model);
 
 	model_ = model;
-	textureHandle_ = textureHandle;
+	textureHandle_ = TextureManager::Load("black1x1.png");
 
 	worldTransform_.Initialize();
-	
+
 	velocity_ = velocity;
 
-	worldTransform_.translation_ = {10, 0, 50};
+	worldTransform_.translation_ = pos;
 
 	Enemy::InitiarizeApproach();
 
+	//isDead_ = false;
 }
 
-Enemy::~Enemy() {
-	for (EnemyBullet* bullet : bullets_) {
-		delete bullet;
-	}
-}
+Enemy::~Enemy() {}
 
 void Enemy::Update() {
-
-	bullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->isDead()) {
-			delete bullet;
-			return true;
-		}
-		return false;
-	});
 
 	switch (phase_) {
 	case Enemy::Phase::Approach:
@@ -44,12 +34,50 @@ void Enemy::Update() {
 		break;
 	}
 	worldTransform_.UpdateMatrix();
+}
 
-	for (EnemyBullet* bullet : bullets_) {
+void Enemy::ApproachMove() {
+	assert(gameScene_);
 
-		bullet->Update();
+	worldTransform_.translation_ =
+	    Calculation::VectorAdd(worldTransform_.translation_, approachVelocity_);
+
+	if (worldTransform_.translation_.z < 0.0f) {
+		phase_ = Phase::Leave;
 	}
 
+	shotTimer_--;
+	if (shotTimer_ <= 0) {
+
+		Fire();
+		shotTimer_ = kFireInterval;
+	}
+}
+
+void Enemy::LeaveMove() {
+
+	worldTransform_.translation_ =
+	    Calculation::VectorAdd(worldTransform_.translation_, leaveVelocity_);
+}
+
+void Enemy::Draw(ViewProjection viewPrpjection) {
+	if (isDead_ == false) {
+		// 3Dモデルの描画
+		model_->Draw(worldTransform_, viewPrpjection, textureHandle_);
+	}
+}
+
+void Enemy::InitiarizeApproach() { shotTimer_ = kFireInterval; }
+
+Vector3 Enemy::GetWorldPosition() {
+
+	Vector3 worldPos = {
+	    worldTransform_.translation_.x,
+	    worldTransform_.translation_.y,
+	    worldTransform_.translation_.z,
+	};
+
+	return worldPos;
 }
 
 void Enemy::Fire() {
@@ -61,69 +89,21 @@ void Enemy::Fire() {
 	const float kBulletSpeed = 1.0f;
 
 	Vector3 playerPos = player_->GetWorldPosition();
-	Vector3 enemyPos = this->GetWorldPosition();
 
-	Vector3 e2p = Calculation::VectorSubtraction(playerPos,enemyPos);
+	Vector3 enemyPos = GetWorldPosition();
+	Vector3 e2p = Calculation::VectorSubtraction(playerPos, enemyPos);
 
 	Vector3 normal = Calculation::Normalize(e2p);
 
 	Vector3 velocity = Calculation::Multiply(kBulletSpeed, normal);
-
 	EnemyBullet* newBullet = new EnemyBullet();
-	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+	newBullet->Initialize(model_, enemyPos, velocity);
 
-	bullets_.push_back(newBullet);
-
+	gameScene_->AddEnemyBullet(newBullet);
 }
 
-
-void Enemy::ApproachMove() {
-
-	worldTransform_.translation_ = 
-		Calculation::VectorAdd(worldTransform_.translation_,approachVelocity_);
-
-	if (worldTransform_.translation_.z < 0.0f) {
-		phase_ = Phase::Leave;
-	}
-
-	shotTimer_--;
-	if (shotTimer_ <= 0) {
-
-		Enemy::Fire();
-
-		shotTimer_ = kFireInterval;
-
-	}
-
-
-}
-
-void Enemy::LeaveMove() {
-	worldTransform_.translation_ =
-	    Calculation::VectorAdd(worldTransform_.translation_, leaveVelocity_);
-}
-
-void Enemy::Draw(ViewProjection viewPrpjection) {
-
-	// 3Dモデルの描画
-	model_->Draw(worldTransform_, viewPrpjection, textureHandle_);
-
-	for (EnemyBullet* bullet : bullets_) {
-		bullet->Draw(viewPrpjection);
-	}
-}
-
-void Enemy::InitiarizeApproach() { 
-	shotTimer_ = kFireInterval; 
-}
-
-Vector3 Enemy::GetWorldPosition() {
-
-	Vector3 worldPos = {
-	    worldTransform_.translation_.x,
-	    worldTransform_.translation_.y,
-	    worldTransform_.translation_.z,
-	};
-
-	return worldPos;
+void Enemy::Spawn(Vector3 pos)
+{ 
+	isDead_ = false;
+	worldTransform_.translation_ = pos;
 }

@@ -32,7 +32,7 @@ public:
 
 	Vector3 GetWorldPosition();
 
-	const float radius_ = 5.0f;
+	const float radius_ = 0.5f;
 
 
 private:

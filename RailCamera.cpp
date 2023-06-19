@@ -10,8 +10,8 @@ void RailCamera::Initialize(Vector3 position, Vector3 rad) {
 }
 
 void RailCamera::Update() { 
-	worldTransform_.translation_.z -= 0.05f; 
-	worldTransform_.rotation_.y += 0.001f;
+	//worldTransform_.translation_.z -= 0.05f; 
+	//worldTransform_.rotation_.y += 0.001f;
 	worldTransform_.matWorld_ =
 	    Calculation::MakeAffineMatrix({1,1,1}, worldTransform_.rotation_, worldTransform_.translation_);
 

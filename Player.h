@@ -51,7 +51,7 @@ public:
 	void OnCollision(){}
 	const std::list<PlayerBullet*>& GetBullet() { return bullets_; }
 
-	const float radius_ = 10.0f;
+	const float radius_ = 0.5f;
 	void SetParent(const WorldTransform* parent);
 
 private:

@@ -2,6 +2,7 @@
 #include "AxisIndicator.h"
 #include "TextureManager.h"
 #include <cassert>
+#include<fstream>
 
 GameScene::GameScene() {}
 
@@ -15,9 +16,15 @@ GameScene::~GameScene() {
 
 	delete debugCamera_;
 
-	delete enemy_;
+	for (Enemy* enemy : enemies_) {
+		delete enemy;
+	}
 
 	delete skydome_;
+
+	for (EnemyBullet* bullet : enemyBullets_) {
+		delete bullet;
+	}
 }
 
 void GameScene::Initialize() {
@@ -56,14 +63,6 @@ void GameScene::Initialize() {
 	// テクスチャを読み込む
 	enemyTextureHandle_ = TextureManager::Load("black1x1.png");
 
-	const Vector3 enemyvelocity = {0, 0, -0.5f};
-
-	// 敵の生成
-	enemy_ = new Enemy();
-	// 敵の初期化
-	enemy_->Initiarize(enemyModel_, enemyTextureHandle_, enemyvelocity);
-
-	enemy_->SetPlayer(player_);
 
 	// 天球
 	skydome_ = new Skydome();
@@ -75,6 +74,7 @@ void GameScene::Initialize() {
 
 	player_->SetParent(&railCamera_->GetWorldTransform());
 
+	LoadEnemyPopData();
 }
 
 void GameScene::Update() {
@@ -96,16 +96,39 @@ void GameScene::Update() {
 		viewPlojection_.TransferMatrix();
 	} else {
 		railCamera_->Update();
-		//viewPlojection_.UpdateMatrix();
+		// viewPlojection_.UpdateMatrix();
 		viewPlojection_.matView = railCamera_->GetViewProjection().matView;
 		viewPlojection_.matProjection = railCamera_->GetViewProjection().matProjection;
 		viewPlojection_.TransferMatrix();
 	}
 
 	player_->Update();
-	//debugCamera_->Update();
-	enemy_->Update();
+	UpdateEnemyPopCommands();
+	// debugCamera_->Update();
+	for (Enemy* enemy : enemies_) {
+		if (enemy->GetIsDead() == false) {
+			enemy->Update();
+		}
+	}
+	enemies_.remove_if([](Enemy* enemy) {
+		if (enemy->GetIsDead()) {
+			delete enemy;
+			return true;
+		}
+		return false;
+	});
+	// 敵の弾
+	enemyBullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->isDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
+	for (EnemyBullet* bullet : enemyBullets_) {
 
+		bullet->Update();
+	}
 }
 
 void GameScene::Draw() {
@@ -136,7 +159,13 @@ void GameScene::Draw() {
 	/// </summary>
 	skydome_->Draw(viewPlojection_);
 	player_->Draw(viewPlojection_);
-	enemy_->Draw(viewPlojection_);
+	for (Enemy* enemy : enemies_) {
+		enemy->Draw(viewPlojection_);
+	}
+	for (EnemyBullet* bullet : enemyBullets_) {
+		bullet->Draw(viewPlojection_);
+	}
+
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
@@ -160,7 +189,7 @@ void GameScene::CheckAllCollision() {
 	Vector3 posA, posB;
 
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullet();
-	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullet();
+	const std::list<EnemyBullet*>& enemyBullets = GetBullet();
 
 #pragma region 自キャラと敵弾の当たり判定
 
@@ -183,21 +212,25 @@ void GameScene::CheckAllCollision() {
 
 #pragma endregion
 #pragma region 自弾と敵キャラの当たり判定
+	for (Enemy* enemy : enemies_) {
 
-	posA = enemy_->GetWorldPosition();
+		posA = enemy->GetWorldPosition();
 
-	for (PlayerBullet* bullet : playerBullets) {
+		for (PlayerBullet* bullet : playerBullets) {
 
-		posB = bullet->GetWorldPosition();
+			posB = bullet->GetWorldPosition();
 
-		Vector3 length = Calculation::VectorSubtraction(posB, posA);
+			Vector3 length = Calculation::VectorSubtraction(posB, posA);
 
-		if (powf(length.x, 2) + powf(length.y, 2) + powf(length.z, 2) <=
-		    powf((enemy_->radius_ + bullet->radius_), 2)) {
+			if (powf(length.x, 2) + powf(length.y, 2) + powf(length.z, 2) <=
+			    powf((enemy->radius_ + bullet->radius_), 2)) {
 
-			enemy_->OnCollision();
+				enemy->OnCollision();
 
-			bullet->OnCollision();
+				bullet->OnCollision();
+
+				enemy->SetIsDead(true);
+			}
 		}
 	}
 
@@ -223,4 +256,81 @@ void GameScene::CheckAllCollision() {
 	}
 
 #pragma endregion
+}
+
+void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
+	// リストに登録する
+	enemyBullets_.push_back(enemyBullet);
+}
+
+void GameScene::LoadEnemyPopData() { 
+	std::ifstream file;
+	file.open("./Resources/enemyPop.csv");
+	assert(file.is_open());
+
+	enemyPopCommands << file.rdbuf();
+
+	file.close();
+}
+
+void GameScene::UpdateEnemyPopCommands() { 
+	
+	if (isWait) {
+		waitTimer--;
+		if (waitTimer <= 0) {
+			isWait = false;
+		}
+		return;
+	}
+	
+	std::string line;
+
+	while (std::getline(enemyPopCommands, line)) {
+		std::istringstream line_stram(line);
+
+		std::string word;
+		std::getline(line_stram, word, ',');
+
+		if (word.find("//") == 0) {
+			continue;
+		}
+
+		if (word.find("POP") == 0) {
+
+			std::getline(line_stram, word, ',');
+			float x = (float)std::atof(word.c_str());
+		
+			std::getline(line_stram, word, ',');
+			float y = (float)std::atof(word.c_str());
+
+			std::getline(line_stram, word, ',');
+			float z = (float)std::atof(word.c_str());
+
+			Spawn(Vector3(x,y,z));
+		}
+
+		else if (word.find("WAIT") == 0) {
+			std::getline(line_stram, word, ',');
+			int32_t waitTime = atoi(word.c_str());
+
+			isWait = true;
+			waitTimer = waitTime;
+			break;
+		}
+	}
+}
+void GameScene::Spawn(Vector3 pos) {
+	// 敵の生成
+	const Vector3 enemyvelocity = {0, 0, -0.5f};
+	// enemy_ = new Enemy();
+	Enemy* newEnemy = new Enemy();
+	// 敵の初期化
+	newEnemy->Initiarize(enemyModel_, pos, enemyvelocity);
+	enemies_.push_back(newEnemy);
+	// enemy_->Initiarize(enemyModel_, enemyTextureHandle_, enemyvelocity);
+	// 敵キャラにゲームシーンを渡す
+	for (Enemy* enemy : enemies_) {
+		enemy->SetGameScene(this);
+		enemy->SetPlayer(player_);
+	}
 }

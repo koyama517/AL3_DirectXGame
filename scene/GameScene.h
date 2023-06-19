@@ -13,6 +13,8 @@
 #include"Enemy.h"
 #include"Skydome.h"
 #include"RailCamera.h"
+#include<sstream>
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -34,8 +36,7 @@ class GameScene {
 	//デバッグカメラ
 	bool isDebugCameraActive_ = false;
 	DebugCamera* debugCamera_ = nullptr;
-	//敵
-	Enemy* enemy_ = nullptr;
+	
 	//天球
 	Skydome* skydome_ = nullptr;
 	//レールカメラ
@@ -68,6 +69,16 @@ public: // メンバ関数
 	void Draw();
 
 	void CheckAllCollision();
+	/// <summary>
+	/// 敵弾を追加する。
+	/// </summary>
+	/// <param name="enemyBullet">敵弾</param>
+	void AddEnemyBullet(EnemyBullet* enemyBullet);
+
+	void LoadEnemyPopData();
+	void UpdateEnemyPopCommands();
+
+	void Spawn(Vector3 pos);
 
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
@@ -77,6 +88,18 @@ private: // メンバ変数
 	//テクスチャハンドル
 	uint32_t playerTextureHandle_ = 0;
 	uint32_t enemyTextureHandle_ = 0;
+
+	std::list<EnemyBullet*> enemyBullets_;
+	const std::list<EnemyBullet*>& GetBullet() { return enemyBullets_; }
+
+	//敵
+	std::list<Enemy*> enemies_;
+	const std::list<Enemy*>& GetEnemy() { return enemies_; }
+
+	std::stringstream enemyPopCommands;
+
+	bool isWait = false; 
+	int waitTimer;
 
 	/// <summary>
 	/// ゲームシーン用

@@ -121,7 +121,6 @@ void Player::Attack() {
 		PlayerBullet* newBullet = new PlayerBullet();
 		newBullet->Initialize(model_, GetWorldPosition(), velocity);
 		
-
 		bullets_.push_back(newBullet);
 	}
 
