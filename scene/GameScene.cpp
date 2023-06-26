@@ -33,6 +33,7 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
+	TextureManager::Load("reticle.png");
 	// テクスチャを読み込む
 	playerTextureHandle_ = TextureManager::Load("sample.png");
 
@@ -102,7 +103,7 @@ void GameScene::Update() {
 		viewPlojection_.TransferMatrix();
 	}
 
-	player_->Update();
+	player_->Update(viewPlojection_);
 	UpdateEnemyPopCommands();
 	// debugCamera_->Update();
 	for (Enemy* enemy : enemies_) {
@@ -177,6 +178,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+
+	player_->DrawUI();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();

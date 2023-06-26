@@ -7,6 +7,7 @@
 #include "WinApp.h"
 #include"PlayerBullet.h"
 #include<list>
+#include"Sprite.h"
 
 
 /// <summary>
@@ -33,7 +34,7 @@ public:
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update();
+	void Update(ViewProjection viewPrpjection);
 
 	/// <summary>
 	/// 回転
@@ -54,13 +55,23 @@ public:
 	const float radius_ = 0.5f;
 	void SetParent(const WorldTransform* parent);
 
+	void DrawUI();
+
 private:
 	//ワールドデータ変換
 	WorldTransform worldTransform_;
+
+	WorldTransform worldTransForm3DReticle_;
+
 	//モデル
 	Model* model_ = nullptr;
+
+	Sprite* sprite2DReticle_ = nullptr;
+
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
+	
+	uint32_t reticleHandle_ = 0u;
 
 	//PlayerBullet* bullet_ = nullptr;
 

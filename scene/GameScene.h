@@ -24,6 +24,7 @@ class GameScene {
 	Model* playerModel_ = nullptr;
 	Model* enemyModel_ = nullptr;
 	Model* modelSkydome_ = nullptr;
+	Model* reticleModel_ = nullptr;
 
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_;
