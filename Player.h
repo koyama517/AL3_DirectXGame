@@ -57,6 +57,15 @@ public:
 
 	void DrawUI();
 
+	void Mouse(ViewProjection viewPrpjection, Matrix4x4 matViewport);
+
+	Vector3 Get3DReticleWorldPosition();
+
+	/// <summary>
+	/// 攻撃
+	/// </summary>
+	void Attack();
+
 private:
 	//ワールドデータ変換
 	WorldTransform worldTransform_;
@@ -76,11 +85,5 @@ private:
 	//PlayerBullet* bullet_ = nullptr;
 
 	std::list<PlayerBullet*> bullets_;
-
-	/// <summary>
-	/// 攻撃
-	/// </summary>
-	void Attack();
-
 
 };

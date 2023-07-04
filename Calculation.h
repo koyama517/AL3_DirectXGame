@@ -9,6 +9,16 @@ class Calculation {
 
 public:
 
+	static Vector3 Add(const float v1, const Vector3 v2) { 
+		Vector3 result;
+
+		result.x = v1 + v2.x;
+		result.y = v1 + v2.y;
+		result.z = v1 + v2.z;
+
+		return result;
+	}
+
 	static Vector3 VectorAdd(const Vector3 v1, const Vector3 v2);
 	static Vector3 VectorSubtraction(const Vector3 v1, const Vector3 v2);
 	static Vector3 Multiply(const float v1, const Vector3& v2);
