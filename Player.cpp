@@ -129,8 +129,8 @@ void Player::Update(ViewProjection viewPrpjection) {
 	// ゲームパッド状態取得
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
 
-		spritePosition.x += (float)joyState.Gamepad.sThumbRX / SHRT_MAX * 5.0f;
-		spritePosition.y -= (float)joyState.Gamepad.sThumbRY / SHRT_MAX * 5.0f;
+		spritePosition.x += (float)joyState.Gamepad.sThumbRX / SHRT_MAX * 8.0f;
+		spritePosition.y -= (float)joyState.Gamepad.sThumbRY / SHRT_MAX * 8.0f;
 
 		sprite2DReticle_->SetPosition(spritePosition);
 
