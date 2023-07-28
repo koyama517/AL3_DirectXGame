@@ -183,6 +183,8 @@ Vector3 Calculation::Normalize(const Vector3& v) {
 	return result;
 };
 
+
+
 Matrix4x4 Calculation::Inverse(const Matrix4x4& m) {
 	Matrix4x4 result;
 	float determinant = m.m[0][0] * m.m[1][1] * m.m[2][2] * m.m[3][3] +

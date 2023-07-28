@@ -7,6 +7,9 @@
 /// </summary>
 class PlayerBullet {
 public:
+
+	~PlayerBullet(){};
+
 	///<summary>
 	///初期化
 	///</summary>
@@ -17,7 +20,7 @@ public:
 	///<summary>
 	///更新
 	///</summary>
-	void Update();
+	void Update(bool isHole, const Vector3& playerPos);
 
 		///< summary>
 	/// 初期化
@@ -29,7 +32,9 @@ public:
 
 	void OnCollision();
 
-	const float radius_ = 5.0f;
+	const float radius_ = 3.0f;
+	bool isStop_ = false;
+	bool canHole = false;
 
 	Vector3 GetWorldPosition();
 
@@ -44,10 +49,11 @@ private:
 	Vector3 velocity_;
 
 	//寿命
-	static const int32_t kLifeTime = 60 * 5;
+	static const int32_t kLifeTime = 60;
 
 	//デスタイマー
 	int32_t deathTimer_ = kLifeTime;
 	//デスフラグ
 	bool isDead_ = false;
+
 };

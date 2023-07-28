@@ -38,9 +38,9 @@ void GameScene::Initialize() {
 	playerTextureHandle_ = TextureManager::Load("sample.png");
 
 	// 3Dモデルデータの生成
-	playerModel_ = Model::Create();
+	playerModel_ = Model::CreateFromOBJ("player",true);
 	enemyModel_ = Model::Create();
-
+	bulletModel_ = Model::Create();
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -53,7 +53,7 @@ void GameScene::Initialize() {
 	player_ = new Player();
 
 	// 自キャラの初期化
-	player_->Initialize(playerModel_, playerTextureHandle_, playerPosition);
+	player_->Initialize(playerModel_, bulletModel_, playerTextureHandle_, playerPosition);
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
@@ -64,6 +64,11 @@ void GameScene::Initialize() {
 	// テクスチャを読み込む
 	enemyTextureHandle_ = TextureManager::Load("black1x1.png");
 
+	bulletUIHandle_ = TextureManager::Load("bullets.png");
+
+	magnetUIHandle_ = TextureManager::Load("magnet.png");
+	
+	useMagnetUIHandle_ = TextureManager::Load("useMagnet.png");
 
 	// 天球
 	skydome_ = new Skydome();
@@ -76,6 +81,8 @@ void GameScene::Initialize() {
 	player_->SetParent(&railCamera_->GetWorldTransform());
 
 	LoadEnemyPopData();
+
+
 }
 
 void GameScene::Update() {
@@ -128,7 +135,7 @@ void GameScene::Update() {
 	});
 	for (EnemyBullet* bullet : enemyBullets_) {
 
-		bullet->Update();
+		bullet->Update(player_->isInhole,player_->GetWorldPosition());
 	}
 }
 
@@ -194,6 +201,27 @@ void GameScene::CheckAllCollision() {
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullet();
 	const std::list<EnemyBullet*>& enemyBullets = GetBullet();
 
+#pragma region 自キャラと自弾の当たり判定
+	posA = player_->GetWorldPosition();
+
+	for (PlayerBullet* bullet : playerBullets) {
+
+		posB = bullet->GetWorldPosition();
+
+		Vector3 length = Calculation::VectorSubtraction(posB, posA);
+
+		if (powf(length.x, 2) + powf(length.y, 2) + powf(length.z, 2) <=
+		    powf((player_->radius_ + bullet->radius_), 2)) {
+			if (bullet->canHole) {
+
+				player_->OnCollisionPB();
+			
+				bullet->OnCollision();
+			
+			}
+		}
+	}
+#pragma endregion
 #pragma region 自キャラと敵弾の当たり判定
 
 	posA = player_->GetWorldPosition();
@@ -210,6 +238,7 @@ void GameScene::CheckAllCollision() {
 			player_->OnCollision();
 
 			bullet->OnCollision();
+			isHit++;
 		}
 	}
 
@@ -238,7 +267,7 @@ void GameScene::CheckAllCollision() {
 	}
 
 #pragma endregion
-#pragma region 自弾と敵弾の当たり判定
+/* #pragma region 自弾と敵弾の当たり判定
 
 	for (EnemyBullet* eBullet : enemyBullets) {
 		posA = eBullet->GetWorldPosition();
@@ -258,7 +287,7 @@ void GameScene::CheckAllCollision() {
 		}
 	}
 
-#pragma endregion
+#pragma endregion*/
 }
 
 void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {

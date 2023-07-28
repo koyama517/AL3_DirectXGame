@@ -25,6 +25,7 @@ class GameScene {
 	Model* enemyModel_ = nullptr;
 	Model* modelSkydome_ = nullptr;
 	Model* reticleModel_ = nullptr;
+	Model* bulletModel_ = nullptr;
 
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_;
@@ -101,6 +102,12 @@ private: // メンバ変数
 
 	bool isWait = false; 
 	int waitTimer;
+
+	int isHit;
+
+	uint32_t bulletUIHandle_ = 0;
+	uint32_t magnetUIHandle_ = 0;
+	uint32_t useMagnetUIHandle_ = 0;
 
 	/// <summary>
 	/// ゲームシーン用

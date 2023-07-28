@@ -3,6 +3,7 @@
 #include"Matrix4x4.h"
 #include"Vector3.h"
 #include<assert.h>
+#include<algorithm>
 
 class Calculation {
 
@@ -81,6 +82,46 @@ public:
 		result.y /= w;
 		result.z /= w;
 
+		return result;
+	};
+
+	static Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t){
+
+		Vector3 result;
+
+		result = VectorAdd(Multiply((1 - t), v1), Multiply(t, v2));
+
+		return result;
+	};
+	
+	static Vector3 Multiply(const Vector3 v1, const Vector3& v2) {
+
+		Vector3 result;
+
+		result.x = v1.x * v2.x;
+		result.y = v1.y * v2.y;
+		result.z = v1.z * v2.z;
+	};
+
+	static Vector3 Slerp(const Vector3& a, const Vector3& b, float t) {
+		Vector3 na = Normalize(a);
+		Vector3 nb = Normalize(b);
+
+		float angle = std::acosf(std::clamp(Dot(na, nb),0.0f,1.0f));
+
+		float ps = std::sinf(angle * (1 - t));
+		float pe = std::sinf(angle * t);
+
+		Vector3 result;
+
+		if (angle == 0.0f) {
+			result = Lerp(a, b, t);
+			//return result;
+		} else {
+			result = Multiply(
+			    1.0f / std::sinf(angle),
+			    VectorAdd(Multiply(ps, na), Multiply(pe, nb)));
+		}
 		return result;
 	};
 };

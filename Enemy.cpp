@@ -9,11 +9,15 @@ void Enemy::Initiarize(Model* model, const Vector3 pos, const Vector3 velocity) 
 	model_ = model;
 	textureHandle_ = TextureManager::Load("black1x1.png");
 
+	Vector3 tmp = {0, 5, 100};
+
 	worldTransform_.Initialize();
+
+	worldTransform_.translation_ = Calculation::VectorAdd(
+	Calculation::VectorAdd(worldTransform_.translation_,pos),tmp);
 
 	velocity_ = velocity;
 
-	worldTransform_.translation_ = pos;
 
 	Enemy::InitiarizeApproach();
 
@@ -39,8 +43,8 @@ void Enemy::Update() {
 void Enemy::ApproachMove() {
 	assert(gameScene_);
 
-	worldTransform_.translation_ =
-	    Calculation::VectorAdd(worldTransform_.translation_, approachVelocity_);
+	//worldTransform_.translation_ =
+	    //Calculation::VectorAdd(worldTransform_.translation_, approachVelocity_);
 
 	if (worldTransform_.translation_.z < 0.0f) {
 		phase_ = Phase::Leave;
@@ -96,6 +100,7 @@ void Enemy::Fire() {
 	Vector3 normal = Calculation::Normalize(e2p);
 
 	Vector3 velocity = Calculation::Multiply(kBulletSpeed, normal);
+	
 	EnemyBullet* newBullet = new EnemyBullet();
 	newBullet->Initialize(model_, enemyPos, velocity);
 

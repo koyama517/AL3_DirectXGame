@@ -54,7 +54,7 @@ public:
 	void Fire();
 	//const std::list<EnemyBullet*>& GetBullet() { return bullets_; }
 
-	const float radius_ = 10.0f;
+	const float radius_ = 3.0f;
 
 	bool GetIsDead() { return isDead_; }
 
@@ -68,7 +68,7 @@ private:
 	// 速度
 	Vector3 velocity_;
 
-	Vector3 approachVelocity_ = {0.0f, 0.0f, 0.0f};
+	Vector3 approachVelocity_ = {0.0f, 0.0f, 0.01f};
 
 	Vector3 leaveVelocity_ = {0.1f, 0.1f, 0.1f};
 

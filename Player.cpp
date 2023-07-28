@@ -2,12 +2,13 @@
 #include "ViewProjection.h"
 #include <cassert>
 
-void Player::Initialize(Model* model, uint32_t textureHandle, Vector3 position) {
+void Player::Initialize(Model* model, Model* bullet, uint32_t textureHandle, Vector3 position) {
 
 	// NULLポインタチェック
 	assert(model);
 
 	model_ = model;
+	bulletModel_ = bullet;
 	textureHandle_ = textureHandle;
 
 	worldTransform_.Initialize();
@@ -19,6 +20,8 @@ void Player::Initialize(Model* model, uint32_t textureHandle, Vector3 position) 
 
 	sprite2DReticle_ =
 	    Sprite::Create(reticleHandle_, Vector2(0, 0), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+
+	nowBulletNum = startNum;
 }
 
 Player::~Player() {
@@ -95,10 +98,12 @@ void Player::Update(ViewProjection viewPrpjection) {
 	worldTransform_.translation_.z = pos[2];
 	ImGui::End();
 
+	ImGui::Begin("b");
+	ImGui::SliderInt("bullet", &nowBulletNum, 0, 1280);
+	ImGui::End();
+
 	// 旋回
 	Rotate();
-
-	
 
 	// 自機から3Dレティクルへの距離
 	const float kDistancePlayerTo3DReticle = 50.0f;
@@ -113,10 +118,6 @@ void Player::Update(ViewProjection viewPrpjection) {
 	worldTransForm3DReticle_.translation_ = Calculation::VectorAdd(GetWorldPosition(), offset);
 	worldTransForm3DReticle_.UpdateMatrix();
 
-	/*positionReticle = Calculation::Transform(positionReticle, matViewProjectionViewport);
-
-	sprite2DReticle_->SetPosition(Vector2(positionReticle.x, positionReticle.y));*/
-
 	Matrix4x4 matViewport =
 	    Calculation::MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
 
@@ -129,6 +130,11 @@ void Player::Update(ViewProjection viewPrpjection) {
 	// ゲームパッド状態取得
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
 
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+			isInhole = true;
+		} else {
+			isInhole = false;
+		}
 		spritePosition.x += (float)joyState.Gamepad.sThumbRX / SHRT_MAX * 8.0f;
 		spritePosition.y -= (float)joyState.Gamepad.sThumbRY / SHRT_MAX * 8.0f;
 
@@ -159,9 +165,17 @@ void Player::Update(ViewProjection viewPrpjection) {
 	if (!Input::GetInstance()->GetJoystickState(0, joyState)) {
 		Mouse(viewPrpjection, matViewport);
 	}
-	Attack();
+
+	if (shotTimer <= 0) {
+		if (nowBulletNum > 0) {
+			Attack();
+		}
+	} else {
+		shotTimer--;
+	}
+
 	for (PlayerBullet* bullet : bullets_) {
-		bullet->Update();
+		bullet->Update(isInhole,GetWorldPosition());
 	}
 }
 
@@ -191,8 +205,8 @@ void Player::Mouse(ViewProjection viewPrpjection, Matrix4x4 matViewport) {
 
 	const float kDistanceTestObject = 100;
 
-	worldTransForm3DReticle_.translation_ = Calculation::VectorAdd(posNear, 
-		Calculation::Multiply(kDistanceTestObject, mouseDirection));
+	worldTransForm3DReticle_.translation_ =
+	    Calculation::VectorAdd(posNear, Calculation::Multiply(kDistanceTestObject, mouseDirection));
 
 	worldTransForm3DReticle_.UpdateMatrix();
 }
@@ -213,7 +227,9 @@ void Player::Attack() {
 	XINPUT_STATE joyState;
 	// 弾の速度
 	if (!Input::GetInstance()->GetJoystickState(0, joyState)) {
-		if (input_->PushKey(DIK_SPACE)) {
+		if (input_->TriggerKey(DIK_SPACE)) {
+			shotTimer = ShotInterval;
+			nowBulletNum -= 1;
 			const float kBulletSpeed = 1.0f;
 
 			Vector3 velocity = Vector3(0, 0, kBulletSpeed);
@@ -224,13 +240,14 @@ void Player::Attack() {
 			velocity = Calculation::Multiply(kBulletSpeed, velocity);
 
 			PlayerBullet* newBullet = new PlayerBullet();
-			newBullet->Initialize(model_, GetWorldPosition(), velocity);
+			newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity);
 
 			bullets_.push_back(newBullet);
 		}
 	} else {
 		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
-
+			shotTimer = ShotInterval;
+			nowBulletNum -= 1;
 			const float kBulletSpeed = 1.0f;
 
 			Vector3 velocity = Vector3(0, 0, kBulletSpeed);
@@ -241,7 +258,7 @@ void Player::Attack() {
 			velocity = Calculation::Multiply(kBulletSpeed, velocity);
 
 			PlayerBullet* newBullet = new PlayerBullet();
-			newBullet->Initialize(model_, GetWorldPosition(), velocity);
+			newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity);
 
 			bullets_.push_back(newBullet);
 		}
@@ -251,12 +268,11 @@ void Player::Attack() {
 void Player::Draw(ViewProjection viewPrpjection) {
 
 	// 3Dモデルの描画
-	model_->Draw(worldTransform_, viewPrpjection, textureHandle_);
-
+	model_->Draw(worldTransform_, viewPrpjection);
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw(viewPrpjection);
 	}
-	model_->Draw(worldTransForm3DReticle_, viewPrpjection, reticleHandle_);
+	// model_->Draw(worldTransForm3DReticle_, viewPrpjection, reticleHandle_);
 }
 
 Vector3 Player::GetWorldPosition() {

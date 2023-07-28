@@ -1,6 +1,7 @@
 #pragma once
 #include "Model.h"
 #include "WorldTransform.h"
+#include"Player.h"
 #include <assert.h>
 
 /// <summary>
@@ -18,7 +19,7 @@ public:
 	///< summary>
 	/// 更新
 	///</summary>
-	void Update();
+	void Update(bool isHole, Vector3 playerPos);
 
 	///< summary>
 	/// 初期化
@@ -34,6 +35,7 @@ public:
 
 	const float radius_ = 0.5f;
 
+	void SetPlayer(Player* player) { player_ = player; }
 
 private:
 
@@ -46,8 +48,10 @@ private:
 	// 速度
 	Vector3 velocity_;
 
+	Player* player_ = nullptr;
+
 	// 寿命
-	static const int32_t kLifeTime = 60 * 5;
+	static const int32_t kLifeTime = 60 * 2;
 
 	// デスタイマー
 	int32_t deathTimer_ = kLifeTime;

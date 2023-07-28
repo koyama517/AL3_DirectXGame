@@ -15,12 +15,40 @@ void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vecto
 	velocity_ = velocity;
 }
 
-void PlayerBullet::Update() {
-	
-	worldTransform_.translation_ = Calculation::VectorAdd(worldTransform_.translation_, velocity_);
-	worldTransform_.UpdateMatrix();
+void PlayerBullet::Update(bool isHole, const Vector3& playerPos) {
+	if (isStop_ == false && !isHole) {
+		worldTransform_.translation_ =
+		    Calculation::VectorAdd(worldTransform_.translation_, velocity_);
+		worldTransform_.UpdateMatrix();
+	} 
+	else if (isHole && canHole) {
+		isStop_ = false;
+		Vector3 toPlayer = Calculation::VectorSubtraction(playerPos, worldTransform_.translation_);
+		toPlayer = Calculation::Normalize(toPlayer);
+		velocity_ = Calculation::Normalize(velocity_);
 
-	if (--deathTimer_ <= 0) {
+		velocity_ = Calculation::Slerp(velocity_, toPlayer, 1);
+
+		worldTransform_.translation_ =
+		    Calculation::VectorAdd(worldTransform_.translation_, velocity_);
+
+		worldTransform_.UpdateMatrix();
+	} /*else if (){
+		worldTransform_.translation_ =
+		    Calculation::VectorAdd(worldTransform_.translation_, velocity_);
+		worldTransform_.UpdateMatrix();
+	}*/
+
+	if (isStop_) {
+		canHole = true;
+	}
+
+
+	if (--deathTimer_ <= 0 && canHole == false) {
+		isStop_ = true;
+	}
+	
+	if (worldTransform_.translation_.z < playerPos.z - 40) {
 		isDead_ = true;
 	}
 

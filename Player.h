@@ -29,7 +29,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <param name="textureHandle">テクスチャハンドル</param>
-	void Initialize(Model* model, uint32_t textureHandle, Vector3 position);
+	void Initialize(Model* model, Model* bullet ,uint32_t textureHandle, Vector3 position);
 
 	/// <summary>
 	/// 更新
@@ -50,6 +50,13 @@ public:
 	Vector3 GetWorldPosition();
 	Vector3 GetRotate() {return worldTransform_.rotation_; }
 	void OnCollision(){}
+	void OnCollisionPB() {
+		if (nowBulletNum <= MaxNum) {
+			nowBulletNum += 1; 
+		
+		}
+	};
+
 	const std::list<PlayerBullet*>& GetBullet() { return bullets_; }
 
 	const float radius_ = 0.5f;
@@ -66,6 +73,11 @@ public:
 	/// </summary>
 	void Attack();
 
+	int nowBulletNum;
+
+	bool isInhole;
+
+
 private:
 	//ワールドデータ変換
 	WorldTransform worldTransform_;
@@ -74,6 +86,8 @@ private:
 
 	//モデル
 	Model* model_ = nullptr;
+
+	Model* bulletModel_ = nullptr;
 
 	Sprite* sprite2DReticle_ = nullptr;
 
@@ -85,5 +99,14 @@ private:
 	//PlayerBullet* bullet_ = nullptr;
 
 	std::list<PlayerBullet*> bullets_;
+
+	static const uint32_t MaxNum = 50;
+
+	static const uint32_t startNum = 15;
+
+	const int ShotInterval = 30;
+
+	int shotTimer = 0;
+
 
 };
