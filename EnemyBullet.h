@@ -33,7 +33,7 @@ public:
 
 	Vector3 GetWorldPosition();
 
-	const float radius_ = 0.5f;
+	const float radius_ = 1.0f;
 
 	void SetPlayer(Player* player) { player_ = player; }
 

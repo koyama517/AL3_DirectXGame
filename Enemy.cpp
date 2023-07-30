@@ -7,21 +7,19 @@ void Enemy::Initiarize(Model* model, const Vector3 pos, const Vector3 velocity) 
 	assert(model);
 
 	model_ = model;
-	textureHandle_ = TextureManager::Load("black1x1.png");
-
-	Vector3 tmp = {0, 5, 100};
+	textureHandle_ = TextureManager::Load("ene.png");
 
 	worldTransform_.Initialize();
 
-	worldTransform_.translation_ = Calculation::VectorAdd(
-	Calculation::VectorAdd(worldTransform_.translation_,pos),tmp);
-
 	velocity_ = velocity;
 
+	Vector3 tmp = {0, 5, 0};
 
+	worldTransform_.translation_ = pos;
+	spownPos = worldTransform_.translation_;
 	Enemy::InitiarizeApproach();
 
-	//isDead_ = false;
+	// isDead_ = false;
 }
 
 Enemy::~Enemy() {}
@@ -43,11 +41,17 @@ void Enemy::Update() {
 void Enemy::ApproachMove() {
 	assert(gameScene_);
 
-	//worldTransform_.translation_ =
-	    //Calculation::VectorAdd(worldTransform_.translation_, approachVelocity_);
+	worldTransform_.translation_ =
+	Calculation::VectorAdd(worldTransform_.translation_, velocity_);
 
-	if (worldTransform_.translation_.z < 0.0f) {
-		phase_ = Phase::Leave;
+	if (worldTransform_.translation_.x <= spownPos.x - 5 ||
+	    worldTransform_.translation_.x >= spownPos.x + 5) {
+		velocity_.x *= -1;
+	}
+
+	if (worldTransform_.translation_.y <= spownPos.y - 5 ||
+	    worldTransform_.translation_.y >= spownPos.y + 5) {
+		velocity_.y *= -1;
 	}
 
 	shotTimer_--;
@@ -100,15 +104,14 @@ void Enemy::Fire() {
 	Vector3 normal = Calculation::Normalize(e2p);
 
 	Vector3 velocity = Calculation::Multiply(kBulletSpeed, normal);
-	
+
 	EnemyBullet* newBullet = new EnemyBullet();
 	newBullet->Initialize(model_, enemyPos, velocity);
 
 	gameScene_->AddEnemyBullet(newBullet);
 }
 
-void Enemy::Spawn(Vector3 pos)
-{ 
+void Enemy::Spawn(Vector3 pos) {
 	isDead_ = false;
 	worldTransform_.translation_ = pos;
 }

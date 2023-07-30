@@ -15,7 +15,7 @@ public:
 	///</summary>
 	///<param name="model">モデル</param>
 	/// <param name="position">初期化</param>
-	void Initialize(Model* model, const Vector3& position, const Vector3 velocity);
+	void Initialize(Model* model, const Vector3& position, const Vector3 velocity, bool isStop);
 
 	///<summary>
 	///更新
@@ -35,8 +35,10 @@ public:
 	const float radius_ = 3.0f;
 	bool isStop_ = false;
 	bool canHole = false;
+	bool canHit;
 
 	Vector3 GetWorldPosition();
+
 
 private:
 	// ワールドデータ変換
@@ -49,7 +51,7 @@ private:
 	Vector3 velocity_;
 
 	//寿命
-	static const int32_t kLifeTime = 60;
+	static const int32_t kLifeTime = 80;
 
 	//デスタイマー
 	int32_t deathTimer_ = kLifeTime;

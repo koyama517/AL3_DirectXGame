@@ -64,19 +64,13 @@ void GameScene::Initialize() {
 	// テクスチャを読み込む
 	enemyTextureHandle_ = TextureManager::Load("black1x1.png");
 
-	bulletUIHandle_ = TextureManager::Load("bullets.png");
-
-	magnetUIHandle_ = TextureManager::Load("magnet.png");
-	
-	useMagnetUIHandle_ = TextureManager::Load("useMagnet.png");
-
 	// 天球
 	skydome_ = new Skydome();
 	skydome_->Initialize(modelSkydome_);
 	// カメラ生成
 	railCamera_ = new RailCamera();
 	// カメラの初期化
-	railCamera_->Initialize(worldTransform_.translation_, worldTransform_.rotation_);
+	railCamera_->Initialize(Vector3(0,0,-90), worldTransform_.rotation_);
 
 	player_->SetParent(&railCamera_->GetWorldTransform());
 
@@ -86,6 +80,13 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
+	if (player_->GetHp() <= 0) {
+		isGAmeOver = true;
+	}
+	if (player_->GetWorldPosition().z >= 240) {
+		isClear = true;
+	}
+
 	CheckAllCollision();
 
 #ifdef _DEBUG
@@ -109,6 +110,8 @@ void GameScene::Update() {
 		viewPlojection_.matProjection = railCamera_->GetViewProjection().matProjection;
 		viewPlojection_.TransferMatrix();
 	}
+
+	skydome_->Update();
 
 	player_->Update(viewPlojection_);
 	UpdateEnemyPopCommands();
@@ -238,7 +241,6 @@ void GameScene::CheckAllCollision() {
 			player_->OnCollision();
 
 			bullet->OnCollision();
-			isHit++;
 		}
 	}
 
@@ -253,15 +255,19 @@ void GameScene::CheckAllCollision() {
 			posB = bullet->GetWorldPosition();
 
 			Vector3 length = Calculation::VectorSubtraction(posB, posA);
+			if (bullet->canHit) {
 
-			if (powf(length.x, 2) + powf(length.y, 2) + powf(length.z, 2) <=
-			    powf((enemy->radius_ + bullet->radius_), 2)) {
+				if (powf(length.x, 2) + powf(length.y, 2) + powf(length.z, 2) <=
+				    powf((enemy->radius_ + bullet->radius_), 2)) {
 
-				enemy->OnCollision();
+					player_->MekeBullet(posB);
 
-				bullet->OnCollision();
+					enemy->OnCollision();
 
-				enemy->SetIsDead(true);
+					bullet->OnCollision();
+
+					enemy->SetIsDead(true);
+				}
 			}
 		}
 	}
@@ -323,6 +329,8 @@ void GameScene::UpdateEnemyPopCommands() {
 		std::string word;
 		std::getline(line_stram, word, ',');
 
+		Vector3 playerVec = player_->GetWorldPosition();
+
 		if (word.find("//") == 0) {
 			continue;
 		}
@@ -336,7 +344,7 @@ void GameScene::UpdateEnemyPopCommands() {
 			float y = (float)std::atof(word.c_str());
 
 			std::getline(line_stram, word, ',');
-			float z = (float)std::atof(word.c_str());
+			float z = playerVec.z + (float)std::atof(word.c_str());
 
 			Spawn(Vector3(x,y,z));
 		}
@@ -353,7 +361,7 @@ void GameScene::UpdateEnemyPopCommands() {
 }
 void GameScene::Spawn(Vector3 pos) {
 	// 敵の生成
-	const Vector3 enemyvelocity = {0, 0, -0.5f};
+	const Vector3 enemyvelocity = {0.02f, 0.01f, 0.1f};
 	// enemy_ = new Enemy();
 	Enemy* newEnemy = new Enemy();
 	// 敵の初期化

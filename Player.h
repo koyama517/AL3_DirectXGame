@@ -49,7 +49,11 @@ public:
 
 	Vector3 GetWorldPosition();
 	Vector3 GetRotate() {return worldTransform_.rotation_; }
-	void OnCollision(){}
+	void OnCollision() {
+		if (HP > 0) {
+			HP--;
+		}
+	};
 	void OnCollisionPB() {
 		if (nowBulletNum <= MaxNum) {
 			nowBulletNum += 1; 
@@ -68,6 +72,9 @@ public:
 
 	Vector3 Get3DReticleWorldPosition();
 
+	void MekeBullet(Vector3 pos);
+
+
 	/// <summary>
 	/// 攻撃
 	/// </summary>
@@ -77,6 +84,7 @@ public:
 
 	bool isInhole;
 
+	int GetHp() { return HP;}
 
 private:
 	//ワールドデータ変換
@@ -91,10 +99,42 @@ private:
 
 	Sprite* sprite2DReticle_ = nullptr;
 
+	Sprite* bulletUI_ = nullptr;
+	Sprite* magUI = nullptr;
+	Sprite* magNumten_ = nullptr;
+	Sprite* magNum_ = nullptr;
+
+	Sprite* numsUI_ = nullptr;
+	Sprite* numsUIten_ = nullptr;
+
+	Sprite* hpUI_ = nullptr;
+	Sprite* hpNum_ = nullptr;
+
+	Sprite* RBUI_ = nullptr;
+	Sprite* LBUI_ = nullptr;
+
+	Sprite* lineUI_ = nullptr;
+	Sprite* pUI_ = nullptr;
+
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 	
 	uint32_t reticleHandle_ = 0u;
+
+	uint32_t bulletUIHandle_ = 0;
+
+	uint32_t magnetUIHandle_ = 0;
+	uint32_t useMagnetUIHandle_ = 0;
+
+	uint32_t numsHandle_[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+	uint32_t hpHandle_ = 0;
+
+	uint32_t RBHandle_ = 0;
+	uint32_t LBHandle_ = 0;
+
+	uint32_t lineHandle_ = 0;
+	uint32_t pUIHandle_ = 0;
 
 	//PlayerBullet* bullet_ = nullptr;
 
@@ -102,11 +142,21 @@ private:
 
 	static const uint32_t MaxNum = 50;
 
-	static const uint32_t startNum = 15;
+	static const uint32_t startNum = 10;
 
 	const int ShotInterval = 30;
 
 	int shotTimer = 0;
 
+	bool isMagTime;
+
+	bool canMag;
+	const int magInterval = 300;
+
+	int magTimer = 0;
+
+	float uiPos = 340;
+
+	int HP = 3;
 
 };

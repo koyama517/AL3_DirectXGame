@@ -54,7 +54,7 @@ public:
 	void Fire();
 	//const std::list<EnemyBullet*>& GetBullet() { return bullets_; }
 
-	const float radius_ = 3.0f;
+	const float radius_ = 1.0f;
 
 	bool GetIsDead() { return isDead_; }
 
@@ -82,6 +82,8 @@ private:
 	Player* player_ = nullptr;
 
 	GameScene* gameScene_ = nullptr;
+
+	Vector3 spownPos;
 
 	bool isDead_;
 };

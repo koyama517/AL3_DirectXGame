@@ -1,18 +1,22 @@
 #include "PlayerBullet.h"
 
-void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vector3 velocity ){ 
+void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vector3 velocity, bool isStop) { 
 	//NULLポインタチェック
 	assert(model);
 
 	model_ = model;
 	//テクスチャ読み込み
-	textureHandle_ = TextureManager::Load("white1x1.png");
+	textureHandle_ = TextureManager::Load("green.png");
 
 	worldTransform_.Initialize();
 
 	worldTransform_.translation_ = position;
 
 	velocity_ = velocity;
+
+	worldTransform_.scale_ = Vector3(0.8f,0.8f,0.8f);
+
+	canHit = isStop;
 }
 
 void PlayerBullet::Update(bool isHole, const Vector3& playerPos) {
@@ -33,14 +37,19 @@ void PlayerBullet::Update(bool isHole, const Vector3& playerPos) {
 		    Calculation::VectorAdd(worldTransform_.translation_, velocity_);
 
 		worldTransform_.UpdateMatrix();
-	} /*else if (){
+	} 
+	else if (isStop_ && !isHole){
+		velocity_ = Vector3(0, 0, -0.2f);
 		worldTransform_.translation_ =
 		    Calculation::VectorAdd(worldTransform_.translation_, velocity_);
 		worldTransform_.UpdateMatrix();
-	}*/
+	}
+
+
 
 	if (isStop_) {
 		canHole = true;
+		canHit = false;
 	}
 
 
@@ -48,7 +57,7 @@ void PlayerBullet::Update(bool isHole, const Vector3& playerPos) {
 		isStop_ = true;
 	}
 	
-	if (worldTransform_.translation_.z < playerPos.z - 40) {
+	if (worldTransform_.translation_.z < playerPos.z - 30) {
 		isDead_ = true;
 	}
 
@@ -61,7 +70,7 @@ void PlayerBullet::Draw(const ViewProjection& viewProjection) {
 }
 
 void PlayerBullet::OnCollision() {
-
+	
 	isDead_ = true;
 
 }

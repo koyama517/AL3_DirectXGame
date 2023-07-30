@@ -18,15 +18,77 @@ void Player::Initialize(Model* model, Model* bullet, uint32_t textureHandle, Vec
 
 	reticleHandle_ = TextureManager::Load("reticle.png");
 
-	sprite2DReticle_ =
-	    Sprite::Create(reticleHandle_, Vector2(0, 0), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+	bulletUIHandle_ = TextureManager::Load("UI/bullets.png");
 
+	magnetUIHandle_ = TextureManager::Load("UI/magnet.png");
+
+	useMagnetUIHandle_ = TextureManager::Load("UI/useMag.png");
+
+	hpHandle_ = TextureManager::Load("UI/hearts.png");
+
+	numsHandle_[0] = TextureManager::Load("numbers/0.png");
+	numsHandle_[1] = TextureManager::Load("numbers/1.png");
+	numsHandle_[2] = TextureManager::Load("numbers/2.png");
+	numsHandle_[3] = TextureManager::Load("numbers/3.png");
+	numsHandle_[4] = TextureManager::Load("numbers/4.png");
+	numsHandle_[5] = TextureManager::Load("numbers/5.png");
+	numsHandle_[6] = TextureManager::Load("numbers/6.png");
+	numsHandle_[7] = TextureManager::Load("numbers/7.png");
+	numsHandle_[8] = TextureManager::Load("numbers/8.png");
+	numsHandle_[9] = TextureManager::Load("numbers/9.png");
+
+	RBHandle_ = TextureManager::Load("UI/RB.png");
+	LBHandle_ = TextureManager::Load("UI/LB.png");
+
+	pUIHandle_ = TextureManager::Load("UI/P.png");
+	lineHandle_ = TextureManager::Load("UI/line.png");
+
+	sprite2DReticle_ =
+	    Sprite::Create(reticleHandle_, Vector2(640, 360), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+
+	bulletUI_ =
+	    Sprite::Create(bulletUIHandle_, Vector2(1100, 650), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+
+	magUI =
+	    Sprite::Create(magnetUIHandle_, Vector2(1100, 530), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+
+	numsUI_ =
+	    Sprite::Create(numsHandle_[0], Vector2(1230, 650), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+	
+	numsUIten_ =
+	    Sprite::Create(numsHandle_[0], Vector2(1190, 650), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+
+	magNum_ =
+	    Sprite::Create(numsHandle_[0], Vector2(1210, 530), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+
+	hpUI_ = 
+	    Sprite::Create(hpHandle_, Vector2(50, 650), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+	
+	hpNum_ =
+	    Sprite::Create(numsHandle_[0], Vector2(120, 650), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+	
+	RBUI_ = 
+	    Sprite::Create(RBHandle_, Vector2(1000, 650), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+	
+	LBUI_ = Sprite::Create(LBHandle_, Vector2(1000, 530), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+
+	pUI_ = Sprite::Create(pUIHandle_, Vector2(uiPos, 50), Vector4(1, 1, 1, 1), Vector2(0.5, 0.5));
+	pUI_->SetSize(Vector2(40, 40));
+	lineUI_ = Sprite::Create(lineHandle_, Vector2(640, 50), Vector4(1, 1, 1, 0.8f), Vector2(0.5, 0.5));
+	lineUI_->SetSize(Vector2(600, 20));
 	nowBulletNum = startNum;
+
+	canMag = true;
 }
 
 Player::~Player() {
 
 	delete sprite2DReticle_;
+	delete numsUI_;
+	delete numsUIten_;
+	delete bulletUI_;
+	delete magUI;
+	delete magNum_;
 	for (PlayerBullet* bullet : bullets_) {
 		delete bullet;
 	}
@@ -52,7 +114,11 @@ void Player::Update(ViewProjection viewPrpjection) {
 	    worldTransform_.translation_.x, worldTransform_.translation_.y,
 	    worldTransform_.translation_.z};
 	// キャラクターの移動速さ
-	const float kCharacterSpeed = 0.2f;
+	float kCharacterSpeed = 0.2f;
+
+	if (isInhole) {
+		kCharacterSpeed = 0.15f;
+	}
 
 	// 押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_LEFT)) {
@@ -91,16 +157,16 @@ void Player::Update(ViewProjection viewPrpjection) {
 	pos[2] = worldTransform_.translation_.z;
 	worldTransform_.UpdateMatrix();
 
-	ImGui::Begin("a");
-	ImGui::SliderFloat3("Player", pos, 0.0f, 1280);
-	worldTransform_.translation_.x = pos[0];
-	worldTransform_.translation_.y = pos[1];
-	worldTransform_.translation_.z = pos[2];
-	ImGui::End();
+	//ImGui::Begin("a");
+	//ImGui::SliderFloat3("Player", pos, 0.0f, 1280);
+	//worldTransform_.translation_.x = pos[0];
+	//worldTransform_.translation_.y = pos[1];
+	//worldTransform_.translation_.z = pos[2];
+	//ImGui::End();
 
-	ImGui::Begin("b");
-	ImGui::SliderInt("bullet", &nowBulletNum, 0, 1280);
-	ImGui::End();
+	//ImGui::Begin("b");
+	//ImGui::SliderInt("bullet", &nowBulletNum, 0, 1280);
+	//ImGui::End();
 
 	// 旋回
 	Rotate();
@@ -130,11 +196,23 @@ void Player::Update(ViewProjection viewPrpjection) {
 	// ゲームパッド状態取得
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
 
-		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER && canMag) {
+			isMagTime = true;
+			magTimer = magInterval;
 			isInhole = true;
 		} else {
 			isInhole = false;
 		}
+
+		if (isInhole == false && isMagTime == true) {
+			if (magTimer == 0) {
+				canMag = true;
+			} else {
+				canMag = false;
+				magTimer--;
+			}
+		}
+
 		spritePosition.x += (float)joyState.Gamepad.sThumbRX / SHRT_MAX * 8.0f;
 		spritePosition.y -= (float)joyState.Gamepad.sThumbRY / SHRT_MAX * 8.0f;
 
@@ -167,7 +245,7 @@ void Player::Update(ViewProjection viewPrpjection) {
 	}
 
 	if (shotTimer <= 0) {
-		if (nowBulletNum > 0) {
+		if (nowBulletNum > 0 && isInhole == false) {
 			Attack();
 		}
 	} else {
@@ -175,7 +253,7 @@ void Player::Update(ViewProjection viewPrpjection) {
 	}
 
 	for (PlayerBullet* bullet : bullets_) {
-		bullet->Update(isInhole,GetWorldPosition());
+		bullet->Update(isInhole, GetWorldPosition());
 	}
 }
 
@@ -240,7 +318,7 @@ void Player::Attack() {
 			velocity = Calculation::Multiply(kBulletSpeed, velocity);
 
 			PlayerBullet* newBullet = new PlayerBullet();
-			newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity);
+			newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity, true);
 
 			bullets_.push_back(newBullet);
 		}
@@ -258,7 +336,7 @@ void Player::Attack() {
 			velocity = Calculation::Multiply(kBulletSpeed, velocity);
 
 			PlayerBullet* newBullet = new PlayerBullet();
-			newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity);
+			newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity, true);
 
 			bullets_.push_back(newBullet);
 		}
@@ -288,7 +366,68 @@ Vector3 Player::GetWorldPosition() {
 
 void Player::SetParent(const WorldTransform* parent) { worldTransform_.parent_ = parent; }
 
-void Player::DrawUI() { sprite2DReticle_->Draw(); }
+void Player::DrawUI() {
+	sprite2DReticle_->Draw();
+	bulletUI_->Draw();
+	
+	numsUIten_->SetTextureHandle(numsHandle_[nowBulletNum / 10]);
+	numsUI_->SetTextureHandle(numsHandle_[nowBulletNum % 10]);
+
+	magNum_->SetTextureHandle(numsHandle_[magTimer / 60]);
+
+	if (canMag) {
+		magUI->SetTextureHandle(useMagnetUIHandle_);
+	} else {
+		magUI->SetTextureHandle(magnetUIHandle_);		
+	}
+
+	magUI->SetSize(Vector2(96, 96));
+	magUI->Draw();
+	numsUI_->SetSize(Vector2(64, 64));
+	numsUIten_->SetSize(Vector2(64, 64));
+	numsUI_->Draw();
+	numsUIten_->Draw();
+	magNum_->SetSize(Vector2(96, 96));
+	magNum_->Draw();
+
+	hpUI_->SetSize(Vector2(96, 96));
+	hpUI_->Draw();
+	hpNum_->SetTextureHandle(numsHandle_[HP]);
+	hpNum_->SetSize(Vector2(96, 96));
+	hpNum_->Draw();
+
+	RBUI_->SetSize(Vector2(96, 96));
+	RBUI_->Draw();
+	LBUI_->SetSize(Vector2(96, 96));
+	LBUI_->Draw();
+
+	lineUI_->Draw();
+	uiPos += 0.2f;
+	pUI_->SetPosition(Vector2(uiPos, 50));
+	pUI_->Draw();
+}
+
+void Player::MekeBullet(Vector3 pos) {
+	Vector3 velocity = {1, 0, 0};
+	//pos = GetWorldPosition();
+	for (int i = 0; i < 3; i++) {
+
+		if (i == 0) {
+			velocity = Vector3(0.1f,0.1f,0);
+		} else if (i == 1) {
+			velocity = Vector3(-0.1f, 0.1f, 0);
+		} else {
+			velocity = Vector3(0, -0.1f, 0);
+		}
+
+		PlayerBullet* newBullet = new PlayerBullet();
+		newBullet->Initialize(bulletModel_, pos, velocity, false);
+
+		bullets_.push_back(newBullet);
+
+	}
+	
+}
 
 Vector3 Player::Get3DReticleWorldPosition() {
 	Vector3 worldPos;

@@ -12,6 +12,7 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector
 
 	worldTransform_.translation_ = position;
 
+	worldTransform_.scale_ = {0.9f, 0.9f, 0.9f};
 	velocity_ = velocity;
 }
 
@@ -22,7 +23,7 @@ void EnemyBullet::Update(bool isHole, Vector3 playerPos) {
 		toPlayer = Calculation::Normalize(toPlayer);
 		velocity_ = Calculation::Normalize(velocity_);
 
-		velocity_ = Calculation::Slerp(velocity_, toPlayer, 0.08f);
+		velocity_ = Calculation::Slerp(velocity_, toPlayer, 0.06f);
 	}
 	
 	worldTransform_.translation_ =

@@ -82,6 +82,9 @@ public: // メンバ関数
 
 	void Spawn(Vector3 pos);
 
+	bool isClear;
+	bool isGAmeOver;
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -104,10 +107,6 @@ private: // メンバ変数
 	int waitTimer;
 
 	int isHit;
-
-	uint32_t bulletUIHandle_ = 0;
-	uint32_t magnetUIHandle_ = 0;
-	uint32_t useMagnetUIHandle_ = 0;
 
 	/// <summary>
 	/// ゲームシーン用
